@@ -54,7 +54,7 @@ Look for every reference of the dmesure-strimzi-dv namespace and change it to yo
 
     oc apply -f prometheus.yaml
 
--->  /examples/metriscs/grafana-install
+-->  /examples/metrics/grafana-install
 
     oc apply -f grafana.yaml
 
