@@ -1,0 +1,71 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: my-cluster
+spec:
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+  kafka:
+    config:
+      inter.broker.protocol.version: '2.7'
+      log.message.format.version: '2.7'
+      offsets.topic.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      transaction.state.log.replication.factor: 1
+      log.retention.hours: 1
+    readinessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    version: 2.7.0
+    storage:
+      type: jbod
+      volumes:
+        - deleteClaim: false
+          id: 0
+          size: 100Gi
+          type: persistent-claim
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        tls: false
+        type: internal
+      - name: tls
+        port: 9093
+        tls: true
+        type: internal
+  kafkaExporter:
+    enableSaramaLogging: true
+    groupRegex: .*
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    logging: debug
+    readinessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    topicRegex: .*
+  zookeeper:
+    livenessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    metrics:
+      lowerCaseOutputName: true
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          key: zookeeper-metrics-config.yml
+          name: kafka-metrics
+    readinessProbe:
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    replicas: 3
+    storage:
+      deleteClaim: false
+      size: 100Gi
+      type: persistent-claim
